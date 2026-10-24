@@ -2,6 +2,8 @@
 (function () {
   var header = document.querySelector(".site-header");
   var strip = document.querySelector(".works-index-inner");
+  var projectToggle = document.querySelector(".works-index-toggle");
+  var compactIndex = window.matchMedia("(max-width: 860px)");
   var works = Array.prototype.slice.call(document.querySelectorAll(".work"));
   var links = Array.prototype.slice.call(document.querySelectorAll(".works-index a"));
   var bySlug = {};
@@ -10,6 +12,32 @@
   function setHeaderHeight() {
     document.documentElement.style.setProperty("--header-h", header.offsetHeight + "px");
   }
+
+  function setIndexMode() {
+    if (compactIndex.matches) {
+      strip.hidden = projectToggle.getAttribute("aria-expanded") !== "true";
+      projectToggle.hidden = false;
+    } else {
+      strip.hidden = false;
+      projectToggle.hidden = true;
+      projectToggle.setAttribute("aria-expanded", "false");
+    }
+  }
+
+  projectToggle.addEventListener("click", function () {
+    var open = projectToggle.getAttribute("aria-expanded") !== "true";
+    projectToggle.setAttribute("aria-expanded", String(open));
+    projectToggle.setAttribute("aria-label", open ? "Close projects menu" : "Open projects menu");
+    strip.hidden = !open;
+  });
+  strip.addEventListener("click", function (event) {
+    if (event.target.closest("a") && compactIndex.matches) {
+      projectToggle.setAttribute("aria-expanded", "false");
+      projectToggle.setAttribute("aria-label", "Open projects menu");
+      strip.hidden = true;
+    }
+  });
+  compactIndex.addEventListener("change", setIndexMode);
 
   function activate(slug) {
     var link = bySlug[slug];
@@ -46,6 +74,7 @@
   }
 
   setHeaderHeight();
+  setIndexMode();
   update();
   window.addEventListener("scroll", onScroll, { passive: true });
   window.addEventListener("resize", function () { setHeaderHeight(); onScroll(); });
