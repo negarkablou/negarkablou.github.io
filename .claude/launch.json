@@ -1,0 +1,48 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "site",
+      "runtimeExecutable": "py",
+      "runtimeArgs": [
+        "-m",
+        "http.server",
+        "8000"
+      ],
+      "port": 8000
+    },
+    {
+      "name": "site-alt",
+      "runtimeExecutable": "py",
+      "runtimeArgs": [
+        "-m",
+        "http.server",
+        "8010"
+      ],
+      "port": 8010,
+      "autoPort": false
+    },
+    {
+      "name": "site-3",
+      "runtimeExecutable": "py",
+      "runtimeArgs": [
+        "-m",
+        "http.server",
+        "8020"
+      ],
+      "port": 8020,
+      "autoPort": false
+    },
+    {
+      "name": "site-4",
+      "runtimeExecutable": "py",
+      "runtimeArgs": [
+        "-m",
+        "http.server",
+        "8030"
+      ],
+      "port": 8030,
+      "autoPort": false
+    }
+  ]
+}

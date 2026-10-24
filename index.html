@@ -1,0 +1,60 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Negar Kablou</title>
+<meta name="description" content="Negar Kablou, artist working with weaving, collective memory, mourning and participatory practice.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Karla:ital,wght@0,200..800;1,200..800&display=swap">
+<link rel="stylesheet" href="assets/css/site.css">
+<style>
+*{box-sizing:border-box}html,body{margin:0;width:100%;height:100%;overflow:hidden}
+body{background:#d6c6b3;cursor:default}
+#stage{position:fixed;inset:0;background-color:#d6c6b3;background-image:url("assets/img/intro-fabric.jpg");background-size:360px 360px;background-repeat:repeat;touch-action:none;}
+.site-header{position:fixed;left:0;right:0;top:auto;bottom:0;background:rgba(214,198,179,.82);border-bottom:0;border-top:1px solid rgba(66,48,37,.16)}
+.site-header .wrap{padding-top:20px;padding-bottom:20px;justify-content:center;align-items:center}
+.site-header .site-nav{justify-content:center;align-items:center;gap:4px 32px}
+.site-header .site-nav a{font:500 18px/1.4 var(--body);letter-spacing:.06em;text-transform:uppercase;color:#4a3324}
+.site-header .site-nav a:hover,.site-header .site-nav a:focus-visible{color:#2b1b10;border-bottom-color:#4a3324}
+@media(max-width:560px){.site-header .wrap{padding-top:16px;padding-bottom:16px}.site-header .site-nav{gap:0 24px}.site-header .site-nav a{font-size:17px}}
+canvas{display:block;width:100%;height:100%}
+#hint{position:fixed;left:0;right:0;bottom:96px;text-align:center;font:italic 400 16px/1.4 var(--body);color:rgba(66,48,37,.55);pointer-events:none}
+@media(pointer:coarse){#hint{display:none}}
+</style></head><body>
+<header class="site-header">
+  <div class="wrap">
+    <nav class="site-nav" aria-label="Main">
+      <a href="works.html">Works</a>
+      <a href="cv.html">CV</a>
+      <a href="about.html">About</a>
+      <a href="about.html#contact">Contact</a>
+    </nav>
+  </div>
+</header>
+<div id="stage"><canvas id="c"></canvas></div><div id="hint">Move your cursor across the threads</div><script>
+const messy=new Image(), clean=new Image();
+messy.src='assets/img/intro-messy.png'; clean.src='assets/img/intro-clean.png';
+const canvas=document.getElementById('c'),ctx=canvas.getContext('2d');
+const mask=document.createElement('canvas'),mctx=mask.getContext('2d');const cleanLayer=document.createElement('canvas'),clctx=cleanLayer.getContext('2d');
+const header=document.querySelector('.site-header'),hint=document.getElementById('hint');
+let dpr=1,W=0,H=0,barH=0,ready=0;
+// The threaded name image is 2048x340; the clean one is 2048x280 (its black bars cropped off).
+// The clean letters sit slightly off from the threaded ones, so the clean art is redrawn once
+// at this offset/scale to land exactly on the same letters.
+const SRC_W=2048,SRC_H=340,CLEAN={x:-6,y:-29+30*1.003,s:1.003};
+const LETTER_TOP=47,LETTER_H=184;
+// Word slices for the stacked (narrow screen) layout: sx/sw = slice, lx/lw = letter extents.
+const WORDS=[{sx:0,sw:967,lx:136,lw:809},{sx:967,sw:1081,lx:1009,lw:915}];
+const ROW=250;
+const cleanArt=document.createElement('canvas');cleanArt.width=SRC_W;cleanArt.height=SRC_H;
+function prepClean(){const c=cleanArt.getContext('2d');c.clearRect(0,0,SRC_W,SRC_H);c.drawImage(clean,CLEAN.x,CLEAN.y,clean.naturalWidth*CLEAN.s,clean.naturalHeight*CLEAN.s);}
+function layout(){const areaH=H-barH;
+  if(W>=720){const s=Math.min(W*.96/SRC_W,areaH*.68/SRC_H);return [{sx:0,sw:SRC_W,s,dx:(W-SRC_W*s)/2,dy:(areaH-LETTER_H*s)/2-LETTER_TOP*s}];}
+  const s=Math.min(W*.86/WORDS[1].lw,areaH*.6/(ROW+LETTER_H));const top=(areaH-(ROW+LETTER_H)*s)/2-LETTER_TOP*s;
+  return WORDS.map((w,i)=>({sx:w.sx,sw:w.sw,s,dx:W/2-(w.lx+w.lw/2-w.sx)*s,dy:top+i*ROW*s}));}
+function resize(){dpr=Math.min(window.devicePixelRatio||1,2);W=innerWidth;H=innerHeight;barH=header.offsetHeight;hint.style.bottom=(barH+22)+'px';canvas.width=W*dpr;canvas.height=H*dpr;mask.width=W*dpr;mask.height=H*dpr;cleanLayer.width=W*dpr;cleanLayer.height=H*dpr;ctx.setTransform(dpr,0,0,dpr,0,0);mctx.setTransform(dpr,0,0,dpr,0,0);clctx.setTransform(dpr,0,0,dpr,0,0);draw();}
+function draw(){if(!W||!H||ready<2)return;ctx.clearRect(0,0,W,H);const pieces=layout();ctx.globalCompositeOperation='source-over';for(const p of pieces)ctx.drawImage(messy,p.sx,0,p.sw,SRC_H,p.dx,p.dy,p.sw*p.s,SRC_H*p.s);ctx.globalCompositeOperation='destination-out';ctx.drawImage(mask,0,0,W,H);clctx.clearRect(0,0,W,H);clctx.globalCompositeOperation='source-over';for(const p of pieces)clctx.drawImage(cleanArt,p.sx,0,p.sw,SRC_H,p.dx,p.dy,p.sw*p.s,SRC_H*p.s);clctx.globalCompositeOperation='destination-in';clctx.drawImage(mask,0,0,W,H);ctx.globalCompositeOperation='source-over';ctx.drawImage(cleanLayer,0,0,W,H);}
+function brush(x,y){const r=Math.max(44,Math.min(82,W*.04));const g=mctx.createRadialGradient(x,y,0,x,y,r);g.addColorStop(0,'rgba(255,255,255,1)');g.addColorStop(.68,'rgba(255,255,255,.98)');g.addColorStop(1,'rgba(255,255,255,0)');mctx.fillStyle=g;mctx.beginPath();mctx.arc(x,y,r,0,Math.PI*2);mctx.fill();}
+let last=null;
+function move(e){const x=e.clientX,y=e.clientY;if(last){const dx=x-last.x,dy=y-last.y,steps=Math.max(1,Math.ceil(Math.hypot(dx,dy)/12));for(let i=1;i<=steps;i++)brush(last.x+dx*i/steps,last.y+dy*i/steps);}else brush(x,y);last={x,y};draw();}
+window.addEventListener('pointermove',move);window.addEventListener('pointerleave',()=>{last=null;});window.addEventListener('resize',resize);
+messy.onload=()=>{ready++;if(ready===2)resize();};clean.onload=()=>{prepClean();ready++;if(ready===2)resize();};
+</script></body></html>
