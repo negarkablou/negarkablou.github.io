@@ -358,13 +358,56 @@ blockquote cite {
 
 .work-hero { margin: 28px 0 32px; }
 
-/* Size to the photo itself so tall images don't get filler stripes beside them. */
 .work-hero img {
-  width: auto;
-  max-height: 78vh;
+  display: block;
+  width: 100%;
+  aspect-ratio: 4 / 3;
+  object-fit: cover;
 }
 
-.work .gallery { margin-top: 32px; }
+.work .gallery {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: clamp(16px, 2.5vw, 28px);
+  margin-top: 32px;
+}
+
+.work .gallery figure { margin: 0; }
+
+.work .gallery img {
+  display: block;
+  width: 100%;
+  aspect-ratio: 4 / 3;
+  object-fit: cover;
+}
+
+#why-are-you-here .gallery figure:last-child img {
+  object-fit: cover;
+  object-position: center 65%;
+}
+
+#carpet-of-emotions .gallery figure:first-child img {
+  object-fit: contain;
+}
+
+#carpet-of-emotions .gallery figure:nth-child(3) img {
+  object-position: center 30%;
+}
+
+#fabric-design .work-hero img,
+#fabric-design .gallery img {
+  object-fit: contain;
+}
+
+/* Keep the complete artwork visible in these two projects. */
+#why-are-you-here .work-hero img,
+#weaving-as-mourning .work-hero img {
+  width: auto;
+  max-width: 100%;
+  max-height: 78vh;
+  aspect-ratio: auto;
+  object-fit: contain;
+}
 
 @media (max-width: 860px) {
   .works-layout { grid-template-columns: minmax(0, 1fr); gap: 0; padding-top: 0; }
@@ -410,4 +453,8 @@ blockquote cite {
   .works-index a[aria-current="true"] { color: var(--accent); box-shadow: none; }
 
   .work { scroll-margin-top: calc(var(--header-h, 64px) + 56px); }
+}
+
+@media (max-width: 560px) {
+  .work .gallery { grid-template-columns: minmax(0, 1fr); }
 }
